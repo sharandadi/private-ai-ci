@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { LogViewer } from "@/components/dashboard/LogViewer";
 import { ArrowLeft, FileText, Terminal } from "lucide-react";
-import Link from "next/link";
+import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github-dark.css';
+import { Progress } from "@/components/ui/progress";
 
 interface JobDetail {
     id: string;
@@ -26,14 +30,34 @@ interface LogEntry {
     timestamp: string;
 }
 
-export default function JobPage() {
-    const params = useParams();
-    const id = params.id as string;
+function JobPageContent() {
+    const params = useSearchParams();
+    const id = params.get('id');
 
     const [job, setJob] = useState<JobDetail | null>(null);
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [activeTab, setActiveTab] = useState<"logs" | "report">("logs");
-    const [loading, setLoading] = useState(true);
+    const [progress, setProgress] = useState(0);
+
+    // Simulated Progress for Running Jobs
+    useEffect(() => {
+        if (job?.status === "running") {
+            const duration = 120 * 1000; // 2 minutes estimated
+            const intervalTime = 1000;
+            const steps = duration / intervalTime;
+            const increment = 90 / steps; // Target 90%
+
+            const timer = setInterval(() => {
+                setProgress((prev) => {
+                    if (prev >= 90) return 90;
+                    return prev + increment;
+                });
+            }, intervalTime);
+            return () => clearInterval(timer);
+        } else if (job?.status === "success" || job?.status === "failed") {
+            setProgress(100);
+        }
+    }, [job?.status]);
 
     // Poll for Job Details
     useEffect(() => {
@@ -43,7 +67,6 @@ export default function JobPage() {
                 if (res.ok) {
                     const data = await res.json();
                     setJob(data);
-                    // If job is success/failed, we might switch to report tab automatically if wanted, but logs are safer default
                 }
             } catch (err) {
                 console.error(err);
@@ -67,7 +90,6 @@ export default function JobPage() {
             }
         };
         fetchLogs();
-        // Poll more frequently for logs if job is running
         const interval = setInterval(fetchLogs, 2000);
         return () => clearInterval(interval);
     }, [id]);
@@ -91,6 +113,13 @@ export default function JobPage() {
                         <h1 className="text-2xl font-bold tracking-tight">Job {id}</h1>
                         <StatusBadge status={job.status} />
                     </div>
+                    {/* Progress Bar for active jobs */}
+                    {job.status === "running" && (
+                        <div className="w-[200px] mt-2">
+                            <Progress value={progress} className="h-1.5" />
+                            <p className="text-[10px] text-muted-foreground mt-1 text-right">Est. {Math.round((progress / 90) * 120)}s elapsed</p>
+                        </div>
+                    )}
                     <p className="text-sm text-muted-foreground mt-1">
                         {job.repo_url} on <span className="font-mono text-primary">{job.branch}</span>
                     </p>
@@ -123,11 +152,12 @@ export default function JobPage() {
                                 <LogViewer logs={logs} className="h-[600px] border-none rounded-none bg-black text-white" />
                             </div>
                         ) : (
-                            <CardContent className="pt-6 prose prose-invert max-w-none">
+                            <CardContent className="pt-6">
                                 {job.report_content ? (
-                                    <div className="whitespace-pre-wrap font-sans">
-                                        {/* In a real app, use a markdown renderer here */}
-                                        {job.report_content}
+                                    <div className="prose prose-invert max-w-none">
+                                        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                                            {job.report_content}
+                                        </ReactMarkdown>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
@@ -163,5 +193,13 @@ export default function JobPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function JobPage() {
+    return (
+        <Suspense fallback={<div className="p-6 text-center">Loading...</div>}>
+            <JobPageContent />
+        </Suspense>
     );
 }

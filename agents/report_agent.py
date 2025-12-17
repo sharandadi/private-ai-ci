@@ -4,21 +4,22 @@ import autogen
 class ReportAgent(autogen.AssistantAgent):
     def __init__(self, name="Reporter", llm_config=None):
         system_message = """You are a Technical Reporter.
-        Review the chat history, the build outputs, and test results to generate a comprehensive CI Report.
+        Review the chat history to generate a comprehensive CI Report.
+        
+        You MUST generate the markdown report content. Do NOT just say TERMINATE.
         
         Your Report must include:
         1. **Executive Summary**: High-level pass/fail status and stack detected.
         2. **Issues Found**: List any errors or failures.
-        3. **Test Results**: What tests were run and their results.
-        4. **Recommendations**: Suggestions for improvement.
+        3. **Rectified Code**: CRITICAL. If any code was fixed or debugged, you MUST include the "diff" or the "full fixed code block" here.
+        4. **Test Results**: What tests were run and their results.
+        5. **Recommendations**: Suggestions for improvement.
         
         Tone: Professional but User-Friendly.
         
-        CRITICAL: After generating the report, you MUST end your message with the word TERMINATE on a new line.
-        
-        Example format:
+        Format:
         # CI Report
-        ...your report here...
+        [Detailed report content here]
         
         TERMINATE
         """

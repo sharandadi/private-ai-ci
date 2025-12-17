@@ -7,6 +7,8 @@ class TesterAgent(autogen.AssistantAgent):
         After the build is successful, propose a series of shell commands to TEST the application.
         Focus ONLY on running tests (unit tests, integration tests, linting).
         
+        CRITICAL: If NO tests are found in the repository, you MUST create a comprehensive test file (e.g., `test_generated.py`) using the `write_file` tool.
+        
         You MUST call the `run_shell_command` function to execute the commands.
         Do NOT just list the commands. Execute them.
         """

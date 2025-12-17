@@ -5,21 +5,33 @@ class Sandbox:
     """
     Wrapper for running commands in a secure container (e.g. gVisor or just isolated Docker).
     """
-    def __init__(self, image="python:3.11-slim"):
+    def __init__(self, image="python:3.11-slim", use_docker=False):
         self.image = image
+        self.use_docker = use_docker
 
     def set_image(self, image):
         """Sets the docker image to use."""
         self.image = image
 
-
     def run_command(self, command, work_dir=None):
         """
-        Runs a command inside a docker container.
-        Args:
-            command: Shell command to run
-            work_dir: Host directory (or volume path) to mount as workspace
+        Runs a command. If use_docker is True, runs in container. Otherwise runs locally.
         """
+        if not self.use_docker:
+            # Local execution
+            try:
+                result = subprocess.run(
+                    command, 
+                    shell=True, 
+                    cwd=work_dir, 
+                    capture_output=True, 
+                    text=True
+                )
+                return result.stdout, result.stderr
+            except Exception as e:
+                return "", str(e)
+
+        # Docker execution
         cmd = ["docker", "run", "--rm"]
         
         # Check if running in Docker-outside-of-Docker mode

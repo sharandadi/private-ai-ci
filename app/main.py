@@ -54,57 +54,56 @@ def run_pipeline_task(repo_url, commit_sha, pusher_name, branch, job_id):
     This function runs in a background thread.
     It orchestrates the AutoGen Agents to test the code.
     """
-    logger.info(f"[{job_id}] 🚀 Starting Private AI-CI Pipeline for {pusher_name} on {branch}")
-    
-    # Update Job Status to Running
     with app.app_context():
+        logger.info(f"[{job_id}] 🚀 Starting Private AI-CI Pipeline for {pusher_name} on {branch}")
+        
+        # Update Job Status to Running
         job = Job.query.get(job_id)
         if job:
             job.status = "running"
             db.session.commit()
 
-    local_path = None
-    report_content = "Process Failed."
+        local_path = None
+        report_content = "Process Failed."
 
-    try:
-        # STEP 0: PREPARE
-        local_path = clone_repository(repo_url, commit_sha)
-        logger.info(f"[{job_id}] Repo cloned to temporary sandbox.")
+        try:
+            # STEP 0: PREPARE
+            local_path = clone_repository(repo_url, commit_sha)
+            logger.info(f"[{job_id}] Repo cloned to temporary sandbox.")
 
-        # STEP 1: GET STRUCTURE
-        structure = get_repo_structure(local_path)
-        logger.info(f"[{job_id}] File structure analyzed.")
+            # STEP 1: GET STRUCTURE
+            structure = get_repo_structure(local_path)
+            logger.info(f"[{job_id}] File structure analyzed.")
 
-        # STEP 2: RUN ORCHESTRATOR
-        logger.info(f"[{job_id}] invoking AutoGen Orchestrator...")
-        report_content = orchestrator.run(local_path, structure)
-        
-        logger.info(f"[{job_id}] Orchestrator finished.")
-        logger.info(f"[{job_id}] Report content length: {len(report_content) if report_content else 0}")
-        
-        # Update Job Status to Success
-        with app.app_context():
+            # STEP 2: RUN ORCHESTRATOR
+            logger.info(f"[{job_id}] invoking AutoGen Orchestrator...")
+            # Pass job_id for live logging
+            report_content = orchestrator.run(local_path, structure, job_id=job_id)
+            
+            logger.info(f"[{job_id}] Orchestrator finished.")
+            logger.info(f"[{job_id}] Report content length: {len(report_content) if report_content else 0}")
+            
+            # Update Job Status to Success
             job = Job.query.get(job_id)
             if job:
                 job.status = "success"
                 job.report_content = report_content if report_content else "Report generation failed or not found."
                 db.session.commit()
-        
-    except Exception as e:
-        logger.error(f"[{job_id}] ⚠️ Pipeline Critical Failure: {str(e)}")
-        # Update Job Status to Failed
-        with app.app_context():
+            
+        except Exception as e:
+            logger.error(f"[{job_id}] ⚠️ Pipeline Critical Failure: {str(e)}")
+            # Update Job Status to Failed
             job = Job.query.get(job_id)
             if job:
                 job.status = "failed"
                 job.report_content = f"Critical Failure: {str(e)}"
                 db.session.commit()
-                
-    finally:
-        # Clean up disk space
-        if local_path:
-            cleanup_repository(local_path)
-        logger.info(f"[{job_id}] Cleanup complete.")
+                    
+        finally:
+            # Clean up disk space
+            if local_path:
+                cleanup_repository(local_path)
+            logger.info(f"[{job_id}] Cleanup complete.")
 
 
 @app.route('/webhook', methods=['POST'])
@@ -120,6 +119,9 @@ def handle_webhook():
 
     if not verify_signature(request.data, signature_header, webhook_secret):
         return jsonify({"error": "Invalid signature"}), 403
+
+    if request.headers.get('X-GitHub-Event') == 'ping':
+        return jsonify({"msg": "Ping successful"}), 200
 
     payload = request.json
     
@@ -287,4 +289,4 @@ def health_check():
 
 if __name__ == '__main__':
     # Listen on all interfaces (0.0.0.0) so Docker/External tools can reach it
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, threaded=True)

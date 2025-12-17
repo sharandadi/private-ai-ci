@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-# Default to port 5000 if not set
-PORT=${PORT:-5000}
+# Default to port 8080 if not set
+PORT=${PORT:-8080}
 
 echo "Starting Private AI-CI on port $PORT..."
 

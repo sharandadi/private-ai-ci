@@ -8,11 +8,11 @@ export default function Home() {
       {/* Hero Section */}
       <section className="flex-1 flex flex-col justify-center items-center text-center p-8 space-y-8 max-w-4xl mx-auto">
         <div className="space-y-4">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-gradient-to-br from-white to-neutral-500 bg-clip-text text-transparent">
-            Private AI-CI
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent">
+            CodeLens
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-            Your personal, zero-config AI pipeline. Securely analyze your code with local privacy and global intelligence.
+          <p className="text-xl text-muted-foreground max-w-[600px] mb-8">
+            The Private, Autonomous CI/CD Pipeline.
           </p>
         </div>
 

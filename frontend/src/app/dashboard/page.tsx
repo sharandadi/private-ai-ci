@@ -112,7 +112,7 @@ export default function DashboardPage() {
                                 {jobs.map((job) => (
                                     <Link
                                         key={job.id}
-                                        href={`/jobs/${job.id}`}
+                                        href={`/job?id=${job.id}`}
                                         className="flex items-center p-4 hover:bg-muted/50 transition-colors gap-4 group"
                                     >
                                         <StatusBadge status={job.status} />

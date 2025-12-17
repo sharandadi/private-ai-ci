@@ -48,8 +48,8 @@ export default function SetupPage() {
         <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
             <Card className="w-full max-w-lg">
                 <CardHeader>
-                    <CardTitle>Setup Private AI-CI</CardTitle>
-                    <CardDescription>Configure your local pipeline in seconds.</CardDescription>
+                    <CardTitle>Setup CodeLens</CardTitle>
+                    <CardDescription>Configure your CodeLens environment.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {step === 1 && (

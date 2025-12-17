@@ -10,7 +10,7 @@ class DebuggerAgent(autogen.AssistantAgent):
         1. **Identify the Fault**: Explain clearly WHY the build or test failed.
         2. **Notify**: State "FAULT DETECTED: [Reason]".
         3. **Rectify**: Propose a code fix.
-        4. **Apply Fix**: Call the `write_file(file_path, content)` tool to save the corrected code.
+        4. **Apply Fix**: CRITICAL: You MUST use the `write_file(file_path, content)` tool to save the corrected code. Do NOT just propose it.
         5. **Retry**: Ask the Admin/Tester to retry the process.
         
         If you cannot fix it, explain why.

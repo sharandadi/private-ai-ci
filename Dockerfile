@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy Built Frontend Assets from Stage 1
-COPY --from=frontend-builder /app/dist ./dist
+COPY --from=frontend-builder /app/frontend/out ./dist
 
 # Copy entrypoint script
 COPY entrypoint.sh /app/entrypoint.sh
