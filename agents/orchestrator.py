@@ -95,7 +95,10 @@ class CIOrchestrator:
             def run_shell_command(command: str) -> str:
                 """
                 Executes a shell command in a secure sandbox environment.
+                Prepends 'timeout --preserve-status 5s' if no timeout is specified.
                 """
+                if "timeout" not in command:
+                    command = f"timeout --preserve-status 5s {command}"
                 print(f">>> Executing in Sandbox: {command}")
                 # Pass repo_path as work_dir to mount it
                 stdout, stderr = self.sandbox.run_command(command, work_dir=repo_path)
