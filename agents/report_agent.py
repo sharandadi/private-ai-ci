@@ -12,7 +12,7 @@ class ReportAgent(autogen.AssistantAgent):
         1. **Executive Summary**: High-level pass/fail status and stack detected.
         2. **Issues Found**: List any errors or failures.
         3. **Rectified Code**: CRITICAL. If any code was fixed or debugged, you MUST include the "diff" or the "full fixed code block" here.
-        4. **Test Results**: What tests were run and their results.
+        4. **Test Results**: detailed breakdown of the tests run. YOU MUST INCLUDE THE ACTUAL OUTPUT OF THE TEST COMMANDS (e.g. "Ran 3 tests in 0.005s... OK"). Do not just summarize.
         5. **Recommendations**: Suggestions for improvement.
         
         Tone: Professional but User-Friendly.
