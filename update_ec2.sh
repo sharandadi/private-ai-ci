@@ -10,7 +10,7 @@ echo "🚀 Starting EC2 Backend Update..."
 
 # 1. Pull latest changes
 echo "📥 Pulling latest code..."
-git pull origin main
+git pull origin master
 
 # 2. Build Docker Image
 echo "🔨 Building Docker image ($IMAGE_NAME)..."
