@@ -232,7 +232,8 @@ class CIOrchestrator:
                 1. Executive Summary
                 2. Issues Found
                 3. Rectified Code (CRITICAL: Include the fixed code snippets if any)
-                4. Test Results (CRITICAL: Include the actual shell output of the tests)
+                3. Rectified Code (CRITICAL: Include the fixed code snippets if any)
+                4. Test Results (CRITICAL: You MUST copy the exact, verbose output of the shell command. Do not summarize.)
                 5. Recommendations
                 
                 Ending with TERMINATE.

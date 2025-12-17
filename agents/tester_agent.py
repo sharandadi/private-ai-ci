@@ -10,13 +10,16 @@ class TesterAgent(autogen.AssistantAgent):
         CRITICAL: If NO tests are found in the repository, you MUST create a comprehensive test file (e.g., `test_generated.py`) using the `write_file` tool.
         
         RULES FOR GENERATING TESTS:
-        1. Tests must be MEANINGFUL. Do NOT create empty tests or tests that just `pass`.
-        2. You MUST import the actual modules from the repository.
-        3. You MUST include assertions (assert x == y) to verify logic.
-        4. If you don't know the exact logic, create tests that check for basic sanity (e.g., function returns a value of correct type).
+        1. Tests must be MEANINGFUL (import actual modules, verify logic).
+        2. Tests MUST print verbose, formatted output to stdout so it looks good in the report.
+           - Use "==================================================" separators.
+           - Print "Testing [Feature Name]" headers.
+           - Print "Status Code: ..." and "Response: ..." for API tests.
+           - Print "✅ [Test Name] Passed" or "❌ Failed" explicitly.
         
         You MUST call the `run_shell_command` function to execute the commands.
         Do NOT just list the commands. Execute them.
+        
         """
         
         super().__init__(
