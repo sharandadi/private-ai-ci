@@ -18,13 +18,23 @@ echo "🔨 Building Docker image ($IMAGE_NAME)..."
 sudo docker build -t $IMAGE_NAME .
 
 # 3. Stop and Remove Old Container
-echo "🛑 Stopping running container..."
-if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
-    sudo docker stop $CONTAINER_NAME
-    sudo docker rm $CONTAINER_NAME
-    echo "✅ Old container removed."
+# 3. Stop and Remove Old Container (and any port hog)
+echo "🛑 Stopping running containers..."
+
+# Find if any container is using our PORT and stop it
+PORT_HOG_ID=$(sudo docker ps -q --filter "publish=$PORT")
+if [ -n "$PORT_HOG_ID" ]; then
+    echo "⚠️  Found container ($PORT_HOG_ID) using port $PORT. Stopping it..."
+    sudo docker stop $PORT_HOG_ID
+    sudo docker rm $PORT_HOG_ID
+fi
+
+# Also ensure our named container is gone (in case it wasn't the one hogging port but still exists)
+if [ "$(sudo docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
+    sudo docker rm -f $CONTAINER_NAME
+    echo "✅ Old container instance removed."
 else
-    echo "ℹ️ No running container found with name $CONTAINER_NAME."
+    echo "ℹ️ No stopped/running container found with name $CONTAINER_NAME."
 fi
 
 # 4. cleanup old images (optional)
