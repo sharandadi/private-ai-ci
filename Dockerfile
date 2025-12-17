@@ -1,16 +1,24 @@
-# --- Stage 1: Build Frontend ---
-FROM node:20 as frontend-builder
-# Force update for node 20
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/ ./
-RUN npm run build
+# ---------- Build stage ----------
+FROM node:20-alpine AS frontend-builder
 
-# --- Stage 2: Backend ---
+WORKDIR /app/frontend
+
+# Install frontend deps
+COPY frontend/package*.json ./
+RUN npm ci
+
+# Copy the rest of the frontend source
+COPY frontend/ ./
+
+# Build a static export (Next.js)
+#   - `next build` creates .next
+#   - `next export` writes a static site to ./out
+RUN npx next build && npx next export
+
+# ---------- Backend stage ----------
 FROM python:3.11-slim
 
-# Install system dependencies (Docker CLI, git, etc.)
+# System deps (already present, keep as‑is)
 RUN apt-get update && apt-get install -y \
     docker.io \
     git \
@@ -19,21 +27,21 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+# Python deps
 WORKDIR /app
-
-# Copy and install Python dependencies FIRST (for caching)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# THEN copy the rest of the code
-COPY . .
+# Copy backend source
+COPY . /app
 
-# Copy Built Frontend Assets from Stage 1
-COPY --from=frontend-builder /app/frontend/out ./dist
+# ---- Copy the built frontend into Flask's static folder ----
+# The Flask app expects static files at /app/dist
+# The export from the previous stage lives in /app/frontend/out
+COPY --from=frontend-builder /app/frontend/out /app/dist
 
-# Copy entrypoint script
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Expose the port used by Flask
+EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Run the app
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8080", "app.main:app", "--timeout", "600"]
