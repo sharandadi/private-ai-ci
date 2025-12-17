@@ -1,5 +1,6 @@
 # --- Stage 1: Build Frontend ---
-FROM node:18 as frontend-builder
+FROM node:20 as frontend-builder
+# Force update for node 20
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
