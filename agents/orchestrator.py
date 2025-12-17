@@ -10,9 +10,11 @@ from agents.tester_agent import TesterAgent
 from agents.report_agent import ReportAgent
 from agents.debugger_agent import DebuggerAgent
 
+from app.config import Config
+
 class CIOrchestrator:
     def __init__(self):
-        self.api_key = os.getenv('GEMINI_API_KEY')
+        self.api_key = Config.GEMINI_API_KEY
         # Use OpenAI-compatible endpoint - better compatibility, fewer safety issues
         self.config_list = [
             {
