@@ -1,0 +1,20 @@
+Flask
+docker
+langchain
+openai
+python-dotenv
+requests
+gunicorn
+pyautogen<0.3.0
+GitPython
+chromadb
+tiktoken
+pypdf
+ipython
+pymupdf
+google-generativeai
+# sentence-transformers  # Removed: Too heavy (~1.5GB), RAG is optional
+# markdownify  # Removed: Not essential
+Pillow
+Flask-SQLAlchemy
+cryptography

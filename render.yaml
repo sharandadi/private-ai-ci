@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: private-ai-ci
+    env: docker
+    plan: free
+    region: oregon
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false

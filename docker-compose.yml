@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  orchestrator:
+    build: .
+    container_name: private-ai-ci
+    ports:
+      - "5001:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount the volume so the orchestrator can write to it
+      - ci_workspaces:/workspace_data
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
+      # Tell the app it's in Docker and where the shared volume is
+      - DOCKER_CONTAINER_MODE=true
+      - SHARED_VOL_NAME=ci_workspaces
+      - WORKSPACE_BASE=/workspace_data
+    restart: always
+
+volumes:
+  ci_workspaces:
