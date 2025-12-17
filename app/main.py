@@ -2,6 +2,7 @@ import os
 import threading
 import logging
 from flask import Flask, request, jsonify, abort
+from flask_cors import CORS
 
 # --- IMPORTS ---
 from security.hmac_check import verify_signature
@@ -25,6 +26,7 @@ app = Flask(__name__, static_folder='../dist', static_url_path='/')
 app.config.from_object(Config)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ci.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app) # Enable CORS for all routes (S3 frontend needs this)
 
 db.init_app(app)
 

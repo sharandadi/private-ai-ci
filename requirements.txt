@@ -18,3 +18,5 @@ google-generativeai
 Pillow
 Flask-SQLAlchemy
 cryptography
+boto3
+Flask-Cors
