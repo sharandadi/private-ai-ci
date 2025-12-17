@@ -10,10 +10,9 @@ RUN npm ci
 # Copy the rest of the frontend source
 COPY frontend/ ./
 
-# Build a static export (Next.js)
-#   - `next build` creates .next
-#   - `next export` writes a static site to ./out
-RUN npx next build && npx next export
+# Build the Next.js application
+#   - `next build` creates the .next directory
+RUN npx next build
 
 # ---------- Backend stage ----------
 FROM python:3.11-slim
